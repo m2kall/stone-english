@@ -1,0 +1,586 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词汇学习 - Stone English</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <style>
+        .vocabulary-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .search-section {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .search-box {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            flex: 1;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .search-btn {
+            padding: 12px 24px;
+            background: #4f46e5;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        
+        .search-btn:hover {
+            background: #4338ca;
+        }
+        
+        .filter-section {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+        }
+        
+        .filter-select {
+            padding: 8px 12px;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            background: white;
+        }
+        
+        .word-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+        
+        .word-card {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        .word-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+        }
+        
+        .word-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+        
+        .word-text {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .word-level {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .level-basic { background: #dbeafe; color: #1e40af; }
+        .level-intermediate { background: #fef3c7; color: #d97706; }
+        .level-advanced { background: #fee2e2; color: #dc2626; }
+        .level-toefl { background: #f3e8ff; color: #7c3aed; }
+        .level-ielts { background: #ecfdf5; color: #059669; }
+        
+        .word-phonetic {
+            color: #6b7280;
+            font-style: italic;
+            margin-bottom: 0.5rem;
+        }
+        
+        .word-definition {
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .word-example {
+            background: #f9fafb;
+            padding: 0.8rem;
+            border-radius: 6px;
+            border-left: 4px solid #4f46e5;
+            font-style: italic;
+            color: #4b5563;
+            margin-bottom: 1rem;
+        }
+        
+        .word-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .action-btn {
+            padding: 6px 12px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-play {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-play:hover {
+            background: #059669;
+        }
+        
+        .btn-favorite {
+            background: #f59e0b;
+            color: white;
+        }
+        
+        .btn-favorite:hover {
+            background: #d97706;
+        }
+        
+        .btn-learned {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-learned:hover {
+            background: #4b5563;
+        }
+        
+        .btn-learned.active {
+            background: #10b981;
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+        
+        .page-btn {
+            padding: 8px 12px;
+            border: 1px solid #e1e5e9;
+            background: white;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .page-btn:hover {
+            background: #f3f4f6;
+        }
+        
+        .page-btn.active {
+            background: #4f46e5;
+            color: white;
+            border-color: #4f46e5;
+        }
+        
+        .stats-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+        
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            display: block;
+        }
+        
+        .stat-label {
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">📚</span>
+                <span>Stone English</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">🏠 首页</a></li>
+                <li><a href="vocabulary.html" class="nav-link active">📚 词汇</a></li>
+                <li><a href="grammar.html" class="nav-link">📝 语法</a></li>
+                <li><a href="practice.html" class="nav-link">🎯 练习</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="vocabulary-container">
+        <h1 class="page-title">📚 词汇学习</h1>
+        
+        <!-- 统计信息 -->
+        <div class="stats-section">
+            <div class="stat-card">
+                <span class="stat-number" id="totalVocab">0</span>
+                <span class="stat-label">总词汇量</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="learnedVocab">0</span>
+                <span class="stat-label">已掌握</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="todayLearned">0</span>
+                <span class="stat-label">今日学习</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-number" id="accuracy">0%</span>
+                <span class="stat-label">掌握率</span>
+            </div>
+        </div>
+
+        <!-- 搜索和筛选 -->
+        <div class="search-section">
+            <div class="search-box">
+                <input type="text" class="search-input" id="searchInput" placeholder="搜索单词...">
+                <button class="search-btn" id="searchBtn">🔍 搜索</button>
+            </div>
+            <div class="filter-section">
+                <select class="filter-select" id="levelFilter">
+                    <option value="">所有级别</option>
+                    <option value="basic">基础词汇</option>
+                    <option value="intermediate">中级词汇</option>
+                    <option value="advanced">高级词汇</option>
+                    <option value="toefl">托福词汇</option>
+                    <option value="ielts">雅思词汇</option>
+                </select>
+                <select class="filter-select" id="statusFilter">
+                    <option value="">所有状态</option>
+                    <option value="new">未学习</option>
+                    <option value="learning">学习中</option>
+                    <option value="learned">已掌握</option>
+                </select>
+                <select class="filter-select" id="sortBy">
+                    <option value="alphabetical">字母排序</option>
+                    <option value="difficulty">难度排序</option>
+                    <option value="frequency">使用频率</option>
+                    <option value="recent">最近学习</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 词汇列表 -->
+        <div class="word-list" id="wordList">
+            <!-- 动态加载词汇卡片 -->
+        </div>
+
+        <!-- 分页 -->
+        <div class="pagination" id="pagination">
+            <!-- 动态生成分页按钮 -->
+        </div>
+    </main>
+
+    <script src="../scripts/word-generator.js"></script>
+    <script src="../scripts/vocabulary-manager.js"></script>
+    <script>
+        class VocabularyPage {
+            constructor() {
+                this.currentPage = 1;
+                this.wordsPerPage = 12;
+                this.currentWords = [];
+                this.allWords = [];
+                this.init();
+            }
+
+            init() {
+                this.loadWords();
+                this.bindEvents();
+                this.updateStats();
+            }
+
+            loadWords() {
+                // 使用词汇生成器获取词汇
+                this.allWords = window.wordGenerator ? window.wordGenerator.getAllWords() : [];
+                this.filterAndDisplayWords();
+            }
+
+            bindEvents() {
+                document.getElementById('searchBtn').addEventListener('click', () => this.handleSearch());
+                document.getElementById('searchInput').addEventListener('keypress', (e) => {
+                    if (e.key === 'Enter') this.handleSearch();
+                });
+                
+                document.getElementById('levelFilter').addEventListener('change', () => this.filterAndDisplayWords());
+                document.getElementById('statusFilter').addEventListener('change', () => this.filterAndDisplayWords());
+                document.getElementById('sortBy').addEventListener('change', () => this.filterAndDisplayWords());
+            }
+
+            handleSearch() {
+                const searchTerm = document.getElementById('searchInput').value.trim();
+                this.filterAndDisplayWords(searchTerm);
+            }
+
+            filterAndDisplayWords(searchTerm = '') {
+                let filteredWords = [...this.allWords];
+
+                // 搜索过滤
+                if (searchTerm) {
+                    filteredWords = filteredWords.filter(word => 
+                        word.word.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                        word.definition.toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                }
+
+                // 级别过滤
+                const levelFilter = document.getElementById('levelFilter').value;
+                if (levelFilter) {
+                    filteredWords = filteredWords.filter(word => word.level === levelFilter);
+                }
+
+                // 状态过滤
+                const statusFilter = document.getElementById('statusFilter').value;
+                if (statusFilter) {
+                    filteredWords = filteredWords.filter(word => {
+                        const status = this.getWordStatus(word.word);
+                        return status === statusFilter;
+                    });
+                }
+
+                // 排序
+                const sortBy = document.getElementById('sortBy').value;
+                this.sortWords(filteredWords, sortBy);
+
+                this.currentWords = filteredWords;
+                this.currentPage = 1;
+                this.displayWords();
+                this.updatePagination();
+            }
+
+            sortWords(words, sortBy) {
+                switch (sortBy) {
+                    case 'alphabetical':
+                        words.sort((a, b) => a.word.localeCompare(b.word));
+                        break;
+                    case 'difficulty':
+                        const levelOrder = { basic: 1, intermediate: 2, advanced: 3, toefl: 4, ielts: 5 };
+                        words.sort((a, b) => levelOrder[a.level] - levelOrder[b.level]);
+                        break;
+                    case 'frequency':
+                        words.sort((a, b) => (b.frequency || 0) - (a.frequency || 0));
+                        break;
+                    case 'recent':
+                        words.sort((a, b) => {
+                            const aTime = localStorage.getItem(`word_${a.word}_lastStudied`) || 0;
+                            const bTime = localStorage.getItem(`word_${b.word}_lastStudied`) || 0;
+                            return bTime - aTime;
+                        });
+                        break;
+                }
+            }
+
+            displayWords() {
+                const startIndex = (this.currentPage - 1) * this.wordsPerPage;
+                const endIndex = startIndex + this.wordsPerPage;
+                const wordsToShow = this.currentWords.slice(startIndex, endIndex);
+
+                const wordList = document.getElementById('wordList');
+                wordList.innerHTML = wordsToShow.map(word => this.createWordCard(word)).join('');
+
+                // 绑定卡片事件
+                this.bindWordCardEvents();
+            }
+
+            createWordCard(word) {
+                const status = this.getWordStatus(word.word);
+                const isLearned = status === 'learned';
+                const isFavorite = this.isFavorite(word.word);
+
+                return `
+                    <div class="word-card" data-word="${word.word}">
+                        <div class="word-header">
+                            <span class="word-text">${word.word}</span>
+                            <span class="word-level level-${word.level}">${this.getLevelText(word.level)}</span>
+                        </div>
+                        <div class="word-phonetic">${word.phonetic || ''}</div>
+                        <div class="word-definition">${word.definition}</div>
+                        ${word.example ? `<div class="word-example">${word.example}</div>` : ''}
+                        <div class="word-actions">
+                            <button class="action-btn btn-play" onclick="vocabularyPage.playPronunciation('${word.word}')">
+                                🔊 发音
+                            </button>
+                            <button class="action-btn btn-favorite ${isFavorite ? 'active' : ''}" 
+                                    onclick="vocabularyPage.toggleFavorite('${word.word}')">
+                                ${isFavorite ? '❤️' : '🤍'} 收藏
+                            </button>
+                            <button class="action-btn btn-learned ${isLearned ? 'active' : ''}" 
+                                    onclick="vocabularyPage.toggleLearned('${word.word}')">
+                                ${isLearned ? '✅' : '📝'} ${isLearned ? '已掌握' : '标记掌握'}
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }
+
+            bindWordCardEvents() {
+                // 事件已在HTML中通过onclick绑定
+            }
+
+            getLevelText(level) {
+                const levelMap = {
+                    basic: '基础',
+                    intermediate: '中级',
+                    advanced: '高级',
+                    toefl: '托福',
+                    ielts: '雅思'
+                };
+                return levelMap[level] || level;
+            }
+
+            getWordStatus(word) {
+                const learned = localStorage.getItem(`word_${word}_learned`);
+                const studying = localStorage.getItem(`word_${word}_studying`);
+                
+                if (learned === 'true') return 'learned';
+                if (studying === 'true') return 'learning';
+                return 'new';
+            }
+
+            isFavorite(word) {
+                return localStorage.getItem(`word_${word}_favorite`) === 'true';
+            }
+
+            playPronunciation(word) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.8;
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            toggleFavorite(word) {
+                const isFavorite = this.isFavorite(word);
+                localStorage.setItem(`word_${word}_favorite`, !isFavorite);
+                this.displayWords(); // 重新渲染
+                this.updateStats();
+            }
+
+            toggleLearned(word) {
+                const isLearned = this.getWordStatus(word) === 'learned';
+                localStorage.setItem(`word_${word}_learned`, !isLearned);
+                if (!isLearned) {
+                    localStorage.setItem(`word_${word}_lastStudied`, Date.now());
+                    // 更新今日学习数量
+                    const today = new Date().toDateString();
+                    const todayKey = `todayLearned_${today}`;
+                    const todayCount = parseInt(localStorage.getItem(todayKey) || '0');
+                    localStorage.setItem(todayKey, todayCount + 1);
+                }
+                this.displayWords(); // 重新渲染
+                this.updateStats();
+            }
+
+            updateStats() {
+                const totalVocab = this.allWords.length;
+                const learnedVocab = this.allWords.filter(word => 
+                    this.getWordStatus(word.word) === 'learned'
+                ).length;
+                
+                const today = new Date().toDateString();
+                const todayLearned = parseInt(localStorage.getItem(`todayLearned_${today}`) || '0');
+                
+                const accuracy = totalVocab > 0 ? Math.round((learnedVocab / totalVocab) * 100) : 0;
+
+                document.getElementById('totalVocab').textContent = totalVocab;
+                document.getElementById('learnedVocab').textContent = learnedVocab;
+                document.getElementById('todayLearned').textContent = todayLearned;
+                document.getElementById('accuracy').textContent = `${accuracy}%`;
+            }
+
+            updatePagination() {
+                const totalPages = Math.ceil(this.currentWords.length / this.wordsPerPage);
+                const pagination = document.getElementById('pagination');
+                
+                if (totalPages <= 1) {
+                    pagination.innerHTML = '';
+                    return;
+                }
+
+                let paginationHTML = '';
+                
+                // 上一页
+                if (this.currentPage > 1) {
+                    paginationHTML += `<button class="page-btn" onclick="vocabularyPage.goToPage(${this.currentPage - 1})">‹ 上一页</button>`;
+                }
+
+                // 页码
+                for (let i = 1; i <= totalPages; i++) {
+                    if (i === this.currentPage) {
+                        paginationHTML += `<button class="page-btn active">${i}</button>`;
+                    } else {
+                        paginationHTML += `<button class="page-btn" onclick="vocabularyPage.goToPage(${i})">${i}</button>`;
+                    }
+                }
+
+                // 下一页
+                if (this.currentPage < totalPages) {
+                    paginationHTML += `<button class="page-btn" onclick="vocabularyPage.goToPage(${this.currentPage + 1})">下一页 ›</button>`;
+                }
+
+                pagination.innerHTML = paginationHTML;
+            }
+
+            goToPage(page) {
+                this.currentPage = page;
+                this.displayWords();
+                this.updatePagination();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }
+
+        // 初始化页面
+        const vocabularyPage = new VocabularyPage();
+    </script>
+</body>
+</html>

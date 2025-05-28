@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>语法指南 - Stone English</title>
+    <!-- Favicon 图标配置 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <link rel="shortcut icon" href="../favicon_io/favicon.ico">
+    <meta name="msapplication-TileColor" content="#4f46e5">
+    <meta name="theme-color" content="#4f46e5">
+    
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <style>
+        .grammar-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .grammar-nav {
+            background: white;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grammar-categories {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+        }
+        
+        .category-btn {
+            padding: 1rem;
+            border: 2px solid #e1e5e9;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #374151;
+        }
+        
+        .category-btn:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+        
+        .category-btn.active {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .category-icon {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+            display: block;
+        }
+        
+        .grammar-content {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .grammar-section {
+            display: none;
+        }
+        
+        .grammar-section.active {
+            display: block;
+        }
+        
+        .section-title {
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 2px solid #e1e5e9;
+        }
+        
+        .grammar-item {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            border: 1px solid #e1e5e9;
+            border-radius: 8px;
+            background: #f9fafb;
+        }
+        
+        .grammar-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            margin-bottom: 1rem;
+        }
+        
+        .grammar-explanation {
+            color: #374151;
+            line-height: 1.6;
+            margin-bottom: 1rem;
+        }
+        
+        .grammar-examples {
+            background: white;
+            padding: 1rem;
+            border-radius: 6px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .example-item {
+            margin-bottom: 0.5rem;
+            padding: 0.5rem 0;
+        }
+        
+        .example-correct {
+            color: #059669;
+        }
+        
+        .example-incorrect {
+            color: #dc2626;
+            text-decoration: line-through;
+        }
+        
+        .grammar-quiz {
+            background: #f0f9ff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-top: 1rem;
+        }
+        
+        .quiz-question {
+            font-weight: bold;
+            margin-bottom: 1rem;
+            color: #1e40af;
+        }
+        
+        .quiz-options {
+            display: grid;
+            gap: 0.5rem;
+        }
+        
+        .quiz-option {
+            padding: 0.8rem;
+            border: 1px solid #e1e5e9;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .quiz-option:hover {
+            background: #f3f4f6;
+        }
+        
+        .quiz-option.correct {
+            background: #d1fae5;
+            border-color: #10b981;
+        }
+        
+        .quiz-option.incorrect {
+            background: #fee2e2;
+            border-color: #ef4444;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e1e5e9;
+            border-radius: 4px;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: #4f46e5;
+            transition: width 0.3s;
+        }
+        
+        .search-grammar {
+            margin-bottom: 1rem;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e1e5e9;
+            border-radius: 8px;
+            font-size: 16px;
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">📚</span>
+                <span>Stone English</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">🏠 首页</a></li>
+                <li><a href="vocabulary.html" class="nav-link">📚 词汇</a></li>
+                <li><a href="grammar.html" class="nav-link active">📝 语法</a></li>
+                <li><a href="practice.html" class="nav-link">🎯 练习</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="grammar-container">
+        <h1 class="page-title">📝 语法指南</h1>
+        
+        <!-- 搜索 -->
+        <div class="search-grammar">
+            <input type="text" class="search-input" id="grammarSearch" placeholder="搜索语法知识点...">
+        </div>
+
+        <!-- 语法分类导航 -->
+        <div class="grammar-nav">
+            <div class="grammar-categories">
+                <button class="category-btn active" data-category="tenses">
+                    <span class="category-icon">⏰</span>
+                    时态
+                </button>
+                <button class="category-btn" data-category="articles">
+                    <span class="category-icon">📄</span>
+                    冠词
+                </button>
+                <button class="category-btn" data-category="prepositions">
+                    <span class="category-icon">🔗</span>
+                    介词
+                </button>
+                <button class="category-btn" data-category="conditionals">
+                    <span class="category-icon">❓</span>
+                    条件句
+                </button>
+                <button class="category-btn" data-category="passive">
+                    <span class="category-icon">🔄</span>
+                    被动语态
+                </button>
+                <button class="category-btn" data-category="modals">
+                    <span class="category-icon">💭</span>
+                    情态动词
+                </button>
+            </div>
+        </div>
+
+        <!-- 语法内容 -->
+        <div class="grammar-content">
+            <!-- 时态部分 -->
+            <div class="grammar-section active" id="tenses">
+                <h2 class="section-title">⏰ 英语时态</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">一般现在时 (Simple Present)</div>
+                    <div class="grammar-explanation">
+                        用于描述经常发生的动作、习惯、真理或现在的状态。
+                        <br><strong>结构：</strong> 主语 + 动词原形/动词第三人称单数形式
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ I work in a bank.</div>
+                        <div class="example-item example-correct">✓ She speaks English fluently.</div>
+                        <div class="example-item example-correct">✓ The sun rises in the east.</div>
+                    </div>
+                    <div class="grammar-quiz">
+                        <div class="quiz-question">选择正确的句子：</div>
+                        <div class="quiz-options">
+                            <div class="quiz-option" onclick="selectQuizOption(this, false)">He go to school every day.</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, true)">He goes to school every day.</div>
+                            <div class="quiz-option" onclick="selectQuizOption(this, false)">He going to school every day.</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">现在进行时 (Present Continuous)</div>
+                    <div class="grammar-explanation">
+                        用于描述正在进行的动作或临时的情况。
+                        <br><strong>结构：</strong> 主语 + be动词 + 动词-ing形式
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ I am reading a book now.</div>
+                        <div class="example-item example-correct">✓ They are playing football.</div>
+                        <div class="example-item example-incorrect">✗ I am read a book now.</div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">一般过去时 (Simple Past)</div>
+                    <div class="grammar-explanation">
+                        用于描述过去发生的动作或状态。
+                        <br><strong>结构：</strong> 主语 + 动词过去式
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ I visited Paris last year.</div>
+                        <div class="example-item example-correct">✓ She was a teacher.</div>
+                        <div class="example-item example-correct">✓ We went to the cinema yesterday.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 冠词部分 -->
+            <div class="grammar-section" id="articles">
+                <h2 class="section-title">📄 冠词的使用</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">定冠词 "the"</div>
+                    <div class="grammar-explanation">
+                        用于特指某个人或物，或者双方都知道的事物。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ The book on the table is mine.</div>
+                        <div class="example-item example-correct">✓ The sun is shining.</div>
+                        <div class="example-item example-correct">✓ I saw the movie you recommended.</div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">不定冠词 "a/an"</div>
+                    <div class="grammar-explanation">
+                        用于泛指某类事物中的一个。"a" 用于辅音音素开头的词前，"an" 用于元音音素开头的词前。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ I need a pen.</div>
+                        <div class="example-item example-correct">✓ She is an engineer.</div>
+                        <div class="example-item example-correct">✓ It's an honor to meet you.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 介词部分 -->
+            <div class="grammar-section" id="prepositions">
+                <h2 class="section-title">🔗 介词的使用</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">时间介词</div>
+                    <div class="grammar-explanation">
+                        at, on, in 用于不同的时间表达。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ at 3 o'clock, at night, at Christmas</div>
+                        <div class="example-item example-correct">✓ on Monday, on July 4th, on my birthday</div>
+                        <div class="example-item example-correct">✓ in 2023, in summer, in the morning</div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">地点介词</div>
+                    <div class="grammar-explanation">
+                        at, on, in 也用于不同的地点表达。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ at home, at school, at the station</div>
+                        <div class="example-item example-correct">✓ on the table, on the wall, on the first floor</div>
+                        <div class="example-item example-correct">✓ in the room, in London, in the box</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 条件句部分 -->
+            <div class="grammar-section" id="conditionals">
+                <h2 class="section-title">❓ 条件句</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">第一条件句 (First Conditional)</div>
+                    <div class="grammar-explanation">
+                        用于描述真实可能发生的情况。
+                        <br><strong>结构：</strong> If + 一般现在时, will + 动词原形
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ If it rains, I will stay home.</div>
+                        <div class="example-item example-correct">✓ If you study hard, you will pass the exam.</div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">第二条件句 (Second Conditional)</div>
+                    <div class="grammar-explanation">
+                        用于描述假想的或不太可能发生的情况。
+                        <br><strong>结构：</strong> If + 一般过去时, would + 动词原形
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ If I won the lottery, I would travel the world.</div>
+                        <div class="example-item example-correct">✓ If I were you, I would apologize.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 被动语态部分 -->
+            <div class="grammar-section" id="passive">
+                <h2 class="section-title">🔄 被动语态</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">被动语态的构成</div>
+                    <div class="grammar-explanation">
+                        <strong>结构：</strong> be动词 + 过去分词
+                        <br>用于强调动作的承受者而非执行者。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ The book was written by Shakespeare.</div>
+                        <div class="example-item example-correct">✓ English is spoken all over the world.</div>
+                        <div class="example-item example-correct">✓ The house will be built next year.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 情态动词部分 -->
+            <div class="grammar-section" id="modals">
+                <h2 class="section-title">💭 情态动词</h2>
+                
+                <div class="grammar-item">
+                    <div class="grammar-title">can / could</div>
+                    <div class="grammar-explanation">
+                        表示能力、可能性或请求许可。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ I can swim. (能力)</div>
+                        <div class="example-item example-correct">✓ Can I help you? (请求)</div>
+                        <div class="example-item example-correct">✓ It could rain tomorrow. (可能性)</div>
+                    </div>
+                </div>
+
+                <div class="grammar-item">
+                    <div class="grammar-title">must / have to</div>
+                    <div class="grammar-explanation">
+                        表示必须、义务或强烈的建议。
+                    </div>
+                    <div class="grammar-examples">
+                        <div class="example-item example-correct">✓ You must wear a seatbelt.</div>
+                        <div class="example-item example-correct">✓ I have to go to work.</div>
+                        <div class="example-item example-correct">✓ You must be tired after the long journey.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 学习进度 -->
+        <div class="progress-section" style="margin-top: 2rem;">
+            <h3>学习进度</h3>
+            <div class="progress-bar">
+                <div class="progress-fill" id="grammarProgress" style="width: 0%"></div>
+            </div>
+            <p id="progressText">已完成 0 个语法点</p>
+        </div>
+    </main>
+
+    <script>
+        class GrammarPage {
+            constructor() {
+                this.currentCategory = 'tenses';
+                this.completedTopics = new Set(JSON.parse(localStorage.getItem('completedGrammarTopics') || '[]'));
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.updateProgress();
+                this.loadSearchFunctionality();
+            }
+
+            bindEvents() {
+                // 分类按钮事件
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        const category = e.currentTarget.dataset.category;
+                        this.switchCategory(category);
+                    });
+                });
+
+                // 搜索功能
+                document.getElementById('grammarSearch').addEventListener('input', (e) => {
+                    this.searchGrammar(e.target.value);
+                });
+            }
+
+            switchCategory(category) {
+                // 更新按钮状态
+                document.querySelectorAll('.category-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${category}"]`).classList.add('active');
+
+                // 更新内容显示
+                document.querySelectorAll('.grammar-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                document.getElementById(category).classList.add('active');
+
+                this.currentCategory = category;
+            }
+
+            searchGrammar(searchTerm) {
+                const sections = document.querySelectorAll('.grammar-item');
+                const term = searchTerm.toLowerCase();
+
+                sections.forEach(section => {
+                    const title = section.querySelector('.grammar-title').textContent.toLowerCase();
+                    const content = section.querySelector('.grammar-explanation').textContent.toLowerCase();
+                    
+                    if (title.includes(term) || content.includes(term)) {
+                        section.style.display = 'block';
+                    } else {
+                        section.style.display = searchTerm ? 'none' : 'block';
+                    }
+                });
+            }
+
+            markTopicCompleted(topic) {
+                this.completedTopics.add(topic);
+                localStorage.setItem('completedGrammarTopics', JSON.stringify([...this.completedTopics]));
+                this.updateProgress();
+            }
+
+            updateProgress() {
+                const totalTopics = document.querySelectorAll('.grammar-item').length;
+                const completedCount = this.completedTopics.size;
+                const percentage = totalTopics > 0 ? (completedCount / totalTopics) * 100 : 0;
+
+                document.getElementById('grammarProgress').style.width = `${percentage}%`;
+                document.getElementById('progressText').textContent = `已完成 ${completedCount} 个语法点`;
+            }
+
+            loadSearchFunctionality() {
+                // 实现实时搜索高亮
+                const searchInput = document.getElementById('grammarSearch');
+                searchInput.addEventListener('input', (e) => {
+                    this.highlightSearchResults(e.target.value);
+                });
+            }
+
+            highlightSearchResults(searchTerm) {
+                // 移除之前的高亮
+                document.querySelectorAll('.highlight').forEach(el => {
+                    el.outerHTML = el.innerHTML;
+                });
+
+                if (!searchTerm) return;
+
+                // 添加新的高亮
+                const sections = document.querySelectorAll('.grammar-explanation, .grammar-title');
+                sections.forEach(section => {
+                    const text = section.innerHTML;
+                    const regex = new RegExp(`(${searchTerm})`, 'gi');
+                    const highlightedText = text.replace(regex, '<span class="highlight" style="background: yellow;">$1</span>');
+                    section.innerHTML = highlightedText;
+                });
+            }
+        }
+
+        // 测验选择函数
+        function selectQuizOption(element, isCorrect) {
+            // 移除所有选项的状态
+            element.parentNode.querySelectorAll('.quiz-option').forEach(option => {
+                option.classList.remove('correct', 'incorrect');
+                option.style.pointerEvents = 'none';
+            });
+
+            // 添加正确或错误的样式
+            if (isCorrect) {
+                element.classList.add('correct');
+            } else {
+                element.classList.add('incorrect');
+                // 显示正确答案
+                element.parentNode.querySelectorAll('.quiz-option').forEach(option => {
+                    if (option !== element) {
+                        // 这里可以添加逻辑来标识正确答案
+                    }
+                });
+            }
+
+            // 标记该语法点为已完成
+            const grammarItem = element.closest('.grammar-item');
+            const title = grammarItem.querySelector('.grammar-title').textContent;
+            grammarPage.markTopicCompleted(title);
+        }
+
+        // 初始化页面
+        const grammarPage = new GrammarPage();
+    </script>
+</body>
+</html>

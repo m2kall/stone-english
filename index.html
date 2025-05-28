@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stone English - 英语学习平台</title>
+    <!-- Favicon 图标配置 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <link rel="shortcut icon" href="../favicon_io/favicon.ico">
+    <meta name="msapplication-TileColor" content="#4f46e5">
+    <meta name="theme-color" content="#4f46e5">
+    
+    <link rel="stylesheet" href="styles/main.css">
+    <link rel="stylesheet" href="styles/components.css">
+    
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">📚</span>
+                <span>Stone English</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="index.html" class="nav-link active">🏠 首页</a></li>
+                <li><a href="pages/vocabulary.html" class="nav-link">📚 词汇</a></li>
+                <li><a href="pages/grammar.html" class="nav-link">📝 语法</a></li>
+                <li><a href="pages/practice.html" class="nav-link">🎯 练习</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <section class="hero">
+            <div class="hero-content">
+                <h1 class="hero-title">
+                    <span class="gradient-text">Stone English</span>
+                    <br>坚实的英语基础
+                </h1>
+                <p class="hero-subtitle">像石头一样坚固的英语学习平台，助你打造扎实的语言基础</p>
+                <div class="hero-stats">
+                    <div class="stat-item">
+                        <span class="stat-number" id="totalWords">10,000+</span>
+                        <span class="stat-label">词汇量</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="learnedWords">0</span>
+                        <span class="stat-label">已掌握</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-number" id="studyDays">0</span>
+                        <span class="stat-label">学习天数</span>
+                    </div>
+                </div>
+                <div class="hero-buttons">
+                    <a href="pages/vocabulary.html" class="btn btn-primary">开始学习</a>
+                    <a href="pages/practice.html" class="btn btn-secondary">在线练习</a>
+                </div>
+            </div>
+            <div class="hero-animation">
+                <div class="floating-words" id="floatingWords"></div>
+            </div>
+        </section>
+
+        <section class="daily-words">
+            <div class="container">
+                <div class="section-header">
+                    <h2 class="section-title">今日学习</h2>
+                    <div class="level-selector">
+                        <select id="levelSelect" class="level-select">
+                            <option value="basic">基础词汇</option>
+                            <option value="intermediate">中级词汇</option>
+                            <option value="advanced">高级词汇</option>
+                            <option value="toefl">托福词汇</option>
+                            <option value="ielts">雅思词汇</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="words-grid" id="dailyWordsContainer">
+                    <!-- 动态加载词汇卡片 -->
+                </div>
+                <div class="load-more-container">
+                    <button class="btn btn-outline" id="loadMoreWords">加载更多词汇</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="quick-practice">
+            <div class="container">
+                <h2 class="section-title">快速练习</h2>
+                <div class="practice-container">
+                    <div class="practice-card" id="practiceCard">
+                        <div class="practice-header">
+                            <span class="practice-type" id="practiceType">词汇测试</span>
+                            <span class="practice-score">得分: <span id="currentScore">0</span></span>
+                        </div>
+                        <div class="question-container" id="questionContainer">
+                            <!-- 动态加载练习题 -->
+                        </div>
+                        <div class="practice-controls">
+                            <button class="btn btn-primary" id="nextQuestion">下一题</button>
+                            <button class="btn btn-outline" id="skipQuestion">跳过</button>
+                        </div>
+                    </div>
+                    <div class="practice-stats">
+                        <div class="stat-card">
+                            <div class="stat-icon">🎯</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="accuracy">0%</span>
+                                <span class="stat-name">准确率</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">⚡</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="streak">0</span>
+                                <span class="stat-name">连续正确</span>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon">📊</div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="totalAnswered">0</span>
+                                <span class="stat-name">已答题数</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="features">
+            <div class="container">
+                <h2 class="section-title">学习特色</h2>
+                <div class="features-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">📚</div>
+                        <h3>海量词汇库</h3>
+                        <p>包含基础、中级、高级及各类考试词汇，总计超过10,000个精选单词</p>
+                        <ul class="feature-list">
+                            <li>基础词汇 1,000+</li>
+                            <li>中级词汇 3,000+</li>
+                            <li>高级词汇 5,000+</li>
+                            <li>考试专项词汇</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🎯</div>
+                        <h3>智能练习系统</h3>
+                        <p>根据学习进度和掌握情况，智能推荐个性化练习内容</p>
+                        <ul class="feature-list">
+                            <li>自适应难度调整</li>
+                            <li>错题自动复习</li>
+                            <li>多种练习模式</li>
+                            <li>实时反馈</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">📊</div>
+                        <h3>学习数据分析</h3>
+                        <p>详细的学习统计和进度分析，帮助你了解学习效果</p>
+                        <ul class="feature-list">
+                            <li>学习时长统计</li>
+                            <li>掌握程度分析</li>
+                            <li>学习曲线图表</li>
+                            <li>成就系统</li>
+                        </ul>
+                    </div>
+                    <div class="feature-card">
+                        <div class="feature-icon">🔊</div>
+                        <h3>发音练习</h3>
+                        <p>标准美式发音，支持语音合成和发音练习</p>
+                        <ul class="feature-list">
+                            <li>真人发音示范</li>
+                            <li>音标显示</li>
+                            <li>发音练习</li>
+                            <li>语音识别</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <h3>📚 Stone English</h3>
+                    <p>专业的英语学习平台，助你打造坚实的语言基础</p>
+                    <div class="social-links">
+                        <a href="#" class="social-link">📧</a>
+                        <a href="#" class="social-link">🐦</a>
+                        <a href="#" class="social-link">📘</a>
+                    </div>
+                </div>
+                <div class="footer-section">
+                    <h4>学习资源</h4>
+                    <ul>
+                        <li><a href="pages/vocabulary.html">词汇学习</a></li>
+                        <li><a href="pages/grammar.html">语法指南</a></li>
+                        <li><a href="pages/practice.html">在线练习</a></li>
+                        <li><a href="#" onclick="showProgress()">学习进度</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>帮助支持</h4>
+                    <ul>
+                        <li><a href="#" onclick="showHelp()">使用帮助</a></li>
+                        <li><a href="#" onclick="showFeedback()">意见反馈</a></li>
+                        <li><a href="#" onclick="showAbout()">关于我们</a></li>
+                        <li><a href="#" onclick="exportData()">数据导出</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4>联系我们</h4>
+                    <p>📧 Email: m2kall@coipmox.org</p>
+                    <p>🌐 Website: stone.so.kg</p>
+                    <p>⏰ 在线时间: 24/7</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2025 Stone English. Powered by Cloudflare Pages.</p>
+                <p>数据来源: 多个权威词典 | 更新时间: <span id="lastUpdate"></span></p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- 加载脚本 -->
+    <script src="scripts/word-generator.js"></script>
+    <script src="scripts/vocabulary-manager.js"></script>
+    <script src="scripts/app.js"></script>
+</body>
+</html>

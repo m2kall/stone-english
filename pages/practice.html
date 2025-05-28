@@ -1,0 +1,944 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>在线练习 - Stone English</title>
+    <!-- Favicon 图标配置 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <link rel="shortcut icon" href="../favicon_io/favicon.ico">
+    <meta name="msapplication-TileColor" content="#4f46e5">
+    <meta name="theme-color" content="#4f46e5">
+    
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+    <style>
+        .practice-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .practice-modes {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .mode-card {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: 2px solid transparent;
+        }
+        
+        .mode-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+            border-color: #4f46e5;
+        }
+        
+        .mode-card.active {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+        
+        .mode-icon {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+            display: block;
+        }
+        
+        .mode-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .mode-description {
+            color: #6b7280;
+            line-height: 1.5;
+            margin-bottom: 1rem;
+        }
+        
+        .mode-stats {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .stat {
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-weight: bold;
+            color: #4f46e5;
+            display: block;
+        }
+        
+        .stat-label {
+            font-size: 0.8rem;
+            color: #6b7280;
+        }
+        
+        .practice-area {
+            background: white;
+            border-radius: 12px;
+            padding: 2rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        .practice-area.active {
+            display: block;
+        }
+        
+        .practice-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .practice-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #1f2937;
+        }
+        
+        .practice-score {
+            display: flex;
+            gap: 2rem;
+        }
+        
+        .score-item {
+            text-align: center;
+        }
+        
+        .score-value {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #4f46e5;
+            display: block;
+        }
+        
+        .score-label {
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+        
+        .question-container {
+            margin-bottom: 2rem;
+        }
+        
+        .question-text {
+            font-size: 1.2rem;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+        
+        .question-word {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #4f46e5;
+            text-align: center;
+            margin: 2rem 0;
+            padding: 1rem;
+            background: #f8fafc;
+            border-radius: 8px;
+        }
+        
+        .options-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .option-btn {
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            font-size: 1rem;
+        }
+        
+        .option-btn:hover {
+            border-color: #4f46e5;
+            background: #f8fafc;
+        }
+        
+        .option-btn.selected {
+            border-color: #4f46e5;
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .option-btn.correct {
+            border-color: #10b981;
+            background: #10b981;
+            color: white;
+        }
+        
+        .option-btn.incorrect {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: white;
+        }
+        
+        .practice-controls {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+        }
+        
+        .control-btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+        
+        .btn-primary {
+            background: #4f46e5;
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background: #4338ca;
+        }
+        
+        .btn-secondary {
+            background: #6b7280;
+            color: white;
+        }
+        
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+        
+        .btn-success {
+            background: #10b981;
+            color: white;
+        }
+        
+        .btn-success:hover {
+            background: #059669;
+        }
+        
+        .progress-section {
+            margin-bottom: 2rem;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background: #e5e7eb;
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 0.5rem;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #4f46e5, #7c3aed);
+            transition: width 0.3s;
+        }
+        
+        .progress-text {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+        
+        .result-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+        
+        .result-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+        }
+        
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+        
+        .result-title {
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 1rem;
+        }
+        
+        .result-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin: 1.5rem 0;
+        }
+        
+        .typing-area {
+            margin: 2rem 0;
+        }
+        
+        .typing-input {
+            width: 100%;
+            padding: 1rem;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            text-align: center;
+        }
+        
+        .typing-input:focus {
+            outline: none;
+            border-color: #4f46e5;
+        }
+        
+        .hint-section {
+            background: #f0f9ff;
+            padding: 1rem;
+            border-radius: 8px;
+            margin: 1rem 0;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .hint-text {
+            color: #0c4a6e;
+            font-style: italic;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">📚</span>
+                <span>Stone English</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">🏠 首页</a></li>
+                <li><a href="vocabulary.html" class="nav-link">📚 词汇</a></li>
+                <li><a href="grammar.html" class="nav-link">📝 语法</a></li>
+                <li><a href="practice.html" class="nav-link active">🎯 练习</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="practice-container">
+        <h1 class="page-title">🎯 在线练习</h1>
+        
+        <!-- 练习模式选择 -->
+        <div class="practice-modes">
+            <div class="mode-card" data-mode="vocabulary">
+                <span class="mode-icon">📚</span>
+                <div class="mode-title">词汇测试</div>
+                <div class="mode-description">通过选择题测试词汇掌握程度，包含释义、同义词等多种题型</div>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="vocabTotal">0</span>
+                        <span class="stat-label">总题数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="vocabCorrect">0</span>
+                        <span class="stat-label">正确数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="vocabAccuracy">0%</span>
+                        <span class="stat-label">准确率</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mode-card" data-mode="spelling">
+                <span class="mode-icon">✍️</span>
+                <div class="mode-title">拼写练习</div>
+                <div class="mode-description">听音拼词，根据发音和释义正确拼写单词</div>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="spellTotal">0</span>
+                        <span class="stat-label">总题数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="spellCorrect">0</span>
+                        <span class="stat-label">正确数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="spellAccuracy">0%</span>
+                        <span class="stat-label">准确率</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mode-card" data-mode="grammar">
+                <span class="mode-icon">📝</span>
+                <div class="mode-title">语法练习</div>
+                <div class="mode-description">语法填空、句型转换等语法专项练习</div>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="grammarTotal">0</span>
+                        <span class="stat-label">总题数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="grammarCorrect">0</span>
+                        <span class="stat-label">正确数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="grammarAccuracy">0%</span>
+                        <span class="stat-label">准确率</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="mode-card" data-mode="listening">
+                <span class="mode-icon">🎧</span>
+                <div class="mode-title">听力练习</div>
+                <div class="mode-description">听单词发音，选择正确的单词或释义</div>
+                <div class="mode-stats">
+                    <div class="stat">
+                        <span class="stat-value" id="listenTotal">0</span>
+                        <span class="stat-label">总题数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="listenCorrect">0</span>
+                        <span class="stat-label">正确数</span>
+                    </div>
+                    <div class="stat">
+                        <span class="stat-value" id="listenAccuracy">0%</span>
+                        <span class="stat-label">准确率</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 练习区域 -->
+        <div class="practice-area" id="practiceArea">
+            <div class="practice-header">
+                <div class="practice-title" id="practiceTitle">选择练习模式开始</div>
+                <div class="practice-score">
+                    <div class="score-item">
+                        <span class="score-value" id="currentScore">0</span>
+                        <span class="score-label">得分</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-value" id="currentStreak">0</span>
+                        <span class="score-label">连击</span>
+                    </div>
+                    <div class="score-item">
+                        <span class="score-value" id="timeLeft">--</span>
+                        <span class="score-label">剩余时间</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 进度条 -->
+            <div class="progress-section">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">准备开始...</div>
+            </div>
+
+            <!-- 题目区域 -->
+            <div class="question-container" id="questionContainer">
+                <div style="text-align: center; color: #6b7280; padding: 3rem;">
+                    选择上方的练习模式开始学习
+                </div>
+            </div>
+
+            <!-- 控制按钮 -->
+            <div class="practice-controls">
+                <button class="control-btn btn-secondary" id="skipBtn" style="display: none;">跳过</button>
+                <button class="control-btn btn-primary" id="nextBtn" style="display: none;">下一题</button>
+                <button class="control-btn btn-success" id="startBtn">开始练习</button>
+            </div>
+        </div>
+    </main>
+
+    <!-- 结果模态框 -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-icon" id="resultIcon">🎉</div>
+            <div class="result-title" id="resultTitle">练习完成！</div>
+            <div class="result-stats">
+                <div class="stat">
+                    <span class="stat-value" id="finalScore">0</span>
+                    <span class="stat-label">总得分</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="finalAccuracy">0%</span>
+                    <span class="stat-label">准确率</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="finalTime">0s</span>
+                    <span class="stat-label">用时</span>
+                </div>
+            </div>
+            <div class="practice-controls">
+                <button class="control-btn btn-secondary" onclick="practiceManager.closeResult()">关闭</button>
+                <button class="control-btn btn-primary" onclick="practiceManager.restartPractice()">再来一次</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="../scripts/word-generator.js"></script>
+    <script src="../scripts/vocabulary-manager.js"></script>
+    <script>
+        class PracticeManager {
+            constructor() {
+                this.currentMode = null;
+                this.currentQuestion = 0;
+                this.totalQuestions = 10;
+                this.score = 0;
+                this.streak = 0;
+                this.startTime = null;
+                this.questions = [];
+                this.userAnswers = [];
+                this.timer = null;
+                this.timeLimit = 300; // 5分钟
+                this.timeLeft = this.timeLimit;
+                
+                this.init();
+            }
+
+            init() {
+                this.bindEvents();
+                this.loadStats();
+            }
+
+            bindEvents() {
+                // 模式选择
+                document.querySelectorAll('.mode-card').forEach(card => {
+                    card.addEventListener('click', (e) => {
+                        const mode = e.currentTarget.dataset.mode;
+                        this.selectMode(mode);
+                    });
+                });
+
+                // 控制按钮
+                document.getElementById('startBtn').addEventListener('click', () => this.startPractice());
+                document.getElementById('nextBtn').addEventListener('click', () => this.nextQuestion());
+                document.getElementById('skipBtn').addEventListener('click', () => this.skipQuestion());
+            }
+
+            selectMode(mode) {
+                // 更新模式卡片状态
+                document.querySelectorAll('.mode-card').forEach(card => {
+                    card.classList.remove('active');
+                });
+                document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
+
+                this.currentMode = mode;
+                this.updatePracticeTitle();
+                document.getElementById('practiceArea').classList.add('active');
+                document.getElementById('startBtn').style.display = 'block';
+            }
+
+            updatePracticeTitle() {
+                const titles = {
+                    vocabulary: '📚 词汇测试',
+                    spelling: '✍️ 拼写练习',
+                    grammar: '📝 语法练习',
+                    listening: '🎧 听力练习'
+                };
+                document.getElementById('practiceTitle').textContent = titles[this.currentMode];
+            }
+
+            startPractice() {
+                if (!this.currentMode) return;
+
+                this.currentQuestion = 0;
+                this.score = 0;
+                this.streak = 0;
+                this.startTime = Date.now();
+                this.timeLeft = this.timeLimit;
+                this.userAnswers = [];
+
+                this.generateQuestions();
+                this.showQuestion();
+                this.startTimer();
+
+                // 更新UI
+                document.getElementById('startBtn').style.display = 'none';
+                document.getElementById('nextBtn').style.display = 'block';
+                document.getElementById('skipBtn').style.display = 'block';
+            }
+
+            generateQuestions() {
+                this.questions = [];
+                const words = window.wordGenerator ? window.wordGenerator.getRandomWords(this.totalQuestions) : [];
+
+                for (let i = 0; i < this.totalQuestions; i++) {
+                    const word = words[i] || { word: 'example', definition: 'an example', level: 'basic' };
+                    
+                    switch (this.currentMode) {
+                        case 'vocabulary':
+                            this.questions.push(this.generateVocabularyQuestion(word));
+                            break;
+                        case 'spelling':
+                            this.questions.push(this.generateSpellingQuestion(word));
+                            break;
+                        case 'grammar':
+                            this.questions.push(this.generateGrammarQuestion());
+                            break;
+                        case 'listening':
+                            this.questions.push(this.generateListeningQuestion(word));
+                            break;
+                    }
+                }
+            }
+
+            generateVocabularyQuestion(word) {
+                const wrongAnswers = window.wordGenerator ? 
+                    window.wordGenerator.getRandomWords(3).map(w => w.definition) : 
+                    ['wrong answer 1', 'wrong answer 2', 'wrong answer 3'];
+                
+                const options = [word.definition, ...wrongAnswers].sort(() => Math.random() - 0.5);
+                
+                return {
+                    type: 'vocabulary',
+                    question: `"${word.word}" 的意思是：`,
+                    word: word.word,
+                    options: options,
+                    correct: word.definition,
+                    explanation: `${word.word}: ${word.definition}`
+                };
+            }
+
+            generateSpellingQuestion(word) {
+                return {
+                    type: 'spelling',
+                    question: '请根据释义拼写单词：',
+                    definition: word.definition,
+                    correct: word.word.toLowerCase(),
+                    explanation: `正确答案：${word.word}`
+                };
+            }
+
+            generateGrammarQuestion() {
+                const grammarQuestions = [
+                    {
+                        question: '选择正确的时态：I _____ to school every day.',
+                        options: ['go', 'goes', 'going', 'went'],
+                        correct: 'go',
+                        explanation: '一般现在时，主语是I，动词用原形。'
+                    },
+                    {
+                        question: '选择正确的介词：She is good _____ English.',
+                        options: ['at', 'in', 'on', 'for'],
+                        correct: 'at',
+                        explanation: 'be good at 表示"擅长于"。'
+                    },
+                    {
+                        question: '选择正确的冠词：_____ apple a day keeps the doctor away.',
+                        options: ['A', 'An', 'The', '/'],
+                        correct: 'An',
+                        explanation: 'apple以元音音素开头，用an。'
+                    }
+                ];
+                
+                return grammarQuestions[Math.floor(Math.random() * grammarQuestions.length)];
+            }
+
+            generateListeningQuestion(word) {
+                const wrongAnswers = window.wordGenerator ? 
+                    window.wordGenerator.getRandomWords(3).map(w => w.word) : 
+                    ['wrong1', 'wrong2', 'wrong3'];
+                
+                const options = [word.word, ...wrongAnswers].sort(() => Math.random() - 0.5);
+                
+                return {
+                    type: 'listening',
+                    question: '听音选词：',
+                    word: word.word,
+                    options: options,
+                    correct: word.word,
+                    explanation: `正确答案：${word.word}`
+                };
+            }
+
+            showQuestion() {
+                if (this.currentQuestion >= this.questions.length) {
+                    this.endPractice();
+                    return;
+                }
+
+                const question = this.questions[this.currentQuestion];
+                const container = document.getElementById('questionContainer');
+
+                let html = `<div class="question-text">${question.question}</div>`;
+
+                if (question.type === 'vocabulary' || question.type === 'listening') {
+                    if (question.word) {
+                        html += `<div class="question-word">${question.word}</div>`;
+                    }
+                    if (question.type === 'listening') {
+                        html += `<button class="control-btn btn-primary" onclick="practiceManager.playWord('${question.word}')">🔊 播放发音</button>`;
+                    }
+                    html += '<div class="options-container">';
+                    question.options.forEach((option, index) => {
+                        html += `<button class="option-btn" onclick="practiceManager.selectOption('${option}')">${option}</button>`;
+                    });
+                    html += '</div>';
+                } else if (question.type === 'spelling') {
+                    html += `<div class="question-text">${question.definition}</div>`;
+                    html += '<div class="typing-area"><input type="text" class="typing-input" id="spellingInput" placeholder="输入单词拼写..." onkeypress="practiceManager.handleSpellingKeypress(event)"></div>';
+                } else if (question.type === 'grammar') {
+                    html += '<div class="options-container">';
+                    question.options.forEach((option, index) => {
+                        html += `<button class="option-btn" onclick="practiceManager.selectOption('${option}')">${option}</button>`;
+                    });
+                    html += '</div>';
+                }
+
+                container.innerHTML = html;
+                this.updateProgress();
+
+                // 自动聚焦拼写输入框
+                if (question.type === 'spelling') {
+                    setTimeout(() => {
+                        document.getElementById('spellingInput').focus();
+                    }, 100);
+                }
+            }
+
+            selectOption(answer) {
+                const question = this.questions[this.currentQuestion];
+                const isCorrect = answer === question.correct;
+                
+                // 禁用所有选项
+                document.querySelectorAll('.option-btn').forEach(btn => {
+                    btn.style.pointerEvents = 'none';
+                    if (btn.textContent === question.correct) {
+                        btn.classList.add('correct');
+                    } else if (btn.textContent === answer && !isCorrect) {
+                        btn.classList.add('incorrect');
+                    }
+                });
+
+                this.processAnswer(answer, isCorrect);
+            }
+
+            handleSpellingKeypress(event) {
+                if (event.key === 'Enter') {
+                    const answer = event.target.value.trim().toLowerCase();
+                    const question = this.questions[this.currentQuestion];
+                    const isCorrect = answer === question.correct;
+                    
+                    event.target.disabled = true;
+                    if (isCorrect) {
+                        event.target.style.borderColor = '#10b981';
+                        event.target.style.background = '#d1fae5';
+                    } else {
+                        event.target.style.borderColor = '#ef4444';
+                        event.target.style.background = '#fee2e2';
+                    }
+
+                    this.processAnswer(answer, isCorrect);
+                }
+            }
+
+            processAnswer(answer, isCorrect) {
+                this.userAnswers.push({
+                    question: this.questions[this.currentQuestion],
+                    userAnswer: answer,
+                    correct: isCorrect
+                });
+
+                if (isCorrect) {
+                    this.score += 10;
+                    this.streak++;
+                } else {
+                    this.streak = 0;
+                }
+
+                this.updateScore();
+                
+                // 显示解释
+                setTimeout(() => {
+                    this.showExplanation();
+                }, 1000);
+            }
+
+            showExplanation() {
+                const question = this.questions[this.currentQuestion];
+                const container = document.getElementById('questionContainer');
+                
+                const explanationHtml = `
+                    <div class="hint-section">
+                        <div class="hint-text">${question.explanation}</div>
+                    </div>
+                `;
+                
+                container.innerHTML += explanationHtml;
+            }
+
+            nextQuestion() {
+                this.currentQuestion++;
+                this.showQuestion();
+            }
+
+            skipQuestion() {
+                this.userAnswers.push({
+                    question: this.questions[this.currentQuestion],
+                    userAnswer: null,
+                    correct: false
+                });
+                this.streak = 0;
+                this.nextQuestion();
+            }
+
+            playWord(word) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    utterance.rate = 0.8;
+                    speechSynthesis.speak(utterance);
+                }
+            }
+
+            startTimer() {
+                this.timer = setInterval(() => {
+                    this.timeLeft--;
+                    this.updateTimer();
+                    
+                    if (this.timeLeft <= 0) {
+                        this.endPractice();
+                    }
+                }, 1000);
+            }
+
+            updateTimer() {
+                const minutes = Math.floor(this.timeLeft / 60);
+                const seconds = this.timeLeft % 60;
+                document.getElementById('timeLeft').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+            }
+
+            updateScore() {
+                document.getElementById('currentScore').textContent = this.score;
+                document.getElementById('currentStreak').textContent = this.streak;
+            }
+
+            updateProgress() {
+                const progress = ((this.currentQuestion + 1) / this.totalQuestions) * 100;
+                document.getElementById('progressFill').style.width = `${progress}%`;
+                document.getElementById('progressText').textContent = `第 ${this.currentQuestion + 1} 题 / 共 ${this.totalQuestions} 题`;
+            }
+
+            endPractice() {
+                if (this.timer) {
+                    clearInterval(this.timer);
+                }
+
+                const totalTime = Math.floor((Date.now() - this.startTime) / 1000);
+                const correctAnswers = this.userAnswers.filter(a => a.correct).length;
+                const accuracy = Math.round((correctAnswers / this.totalQuestions) * 100);
+
+                // 保存统计数据
+                this.saveStats(correctAnswers, accuracy);
+
+                // 显示结果
+                this.showResult(correctAnswers, accuracy, totalTime);
+            }
+
+            showResult(correct, accuracy, time) {
+                document.getElementById('finalScore').textContent = this.score;
+                document.getElementById('finalAccuracy').textContent = `${accuracy}%`;
+                document.getElementById('finalTime').textContent = `${time}s`;
+                
+                // 设置结果图标和标题
+                if (accuracy >= 90) {
+                    document.getElementById('resultIcon').textContent = '🏆';
+                    document.getElementById('resultTitle').textContent = '优秀！';
+                } else if (accuracy >= 70) {
+                    document.getElementById('resultIcon').textContent = '👍';
+                    document.getElementById('resultTitle').textContent = '不错！';
+                } else {
+                    document.getElementById('resultIcon').textContent = '💪';
+                    document.getElementById('resultTitle').textContent = '继续努力！';
+                }
+
+                document.getElementById('resultModal').style.display = 'flex';
+            }
+
+            closeResult() {
+                document.getElementById('resultModal').style.display = 'none';
+            }
+
+            restartPractice() {
+                this.closeResult();
+                this.startPractice();
+            }
+
+            saveStats(correct, accuracy) {
+                const modeKey = this.currentMode;
+                const totalKey = `${modeKey}Total`;
+                const correctKey = `${modeKey}Correct`;
+                
+                const currentTotal = parseInt(localStorage.getItem(totalKey) || '0');
+                const currentCorrect = parseInt(localStorage.getItem(correctKey) || '0');
+                
+                localStorage.setItem(totalKey, currentTotal + this.totalQuestions);
+                localStorage.setItem(correctKey, currentCorrect + correct);
+                
+                this.loadStats();
+            }
+
+            loadStats() {
+                const modes = ['vocab', 'spell', 'grammar', 'listen'];
+                modes.forEach(mode => {
+                    const total = parseInt(localStorage.getItem(`${mode}Total`) || '0');
+                    const correct = parseInt(localStorage.getItem(`${mode}Correct`) || '0');
+                    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+                    
+                    document.getElementById(`${mode}Total`).textContent = total;
+                    document.getElementById(`${mode}Correct`).textContent = correct;
+                    document.getElementById(`${mode}Accuracy`).textContent = `${accuracy}%`;
+                });
+            }
+        }
+
+        // 初始化练习管理器
+        const practiceManager = new PracticeManager();
+    </script>
+</body>
+</html>
