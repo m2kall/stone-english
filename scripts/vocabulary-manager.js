@@ -244,32 +244,40 @@ class VocabularyManager {
     }
 
     /**
-     * 搜索词汇
+     * 搜索词汇（多字段模糊检索，支持API补充）
      * @param {string} query - 搜索关键词
      * @param {number} limit - 返回数量限制
-     * @returns {Array} - 搜索结果
+     * @returns {Promise<Array>} - 搜索结果
      */
-    searchWords(query, limit = 20) {
+    async searchWords(query, limit = 20) {
         if (!query || query.trim() === '') {
             return [];
         }
-        
         query = query.toLowerCase().trim();
-        
         // 合并所有词汇列表
         const allWords = [
             ...this.wordLists.basic,
             ...this.wordLists.intermediate,
             ...this.wordLists.advanced,
+            ...this.wordLists.toefl,
+            ...this.wordLists.ielts,
         ];
-        
-        // 搜索匹配的词汇
-        const results = allWords.filter(word => {
-            return word.word.toLowerCase().includes(query) || 
-                   (word.meaning && word.meaning.toLowerCase().includes(query));
+        // 多字段模糊匹配
+        let results = allWords.filter(word => {
+            return (
+                word.word.toLowerCase().includes(query) ||
+                (word.meaning && word.meaning.toLowerCase().includes(query)) ||
+                (word.phonetic && word.phonetic.toLowerCase().includes(query)) ||
+                (word.example && word.example.toLowerCase().includes(query))
+            );
         });
-        
-        // 限制返回数量
+        // 如果本地无结果，尝试API查词
+        if (results.length === 0 && /^[a-zA-Z]+$/.test(query)) {
+            const apiWord = await this.getWordDetails(query);
+            if (apiWord && apiWord.word) {
+                results = [apiWord];
+            }
+        }
         return results.slice(0, limit);
     }
 

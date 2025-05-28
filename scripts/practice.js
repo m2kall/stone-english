@@ -794,8 +794,214 @@ function initMeaningChoice() {
 }
 
 function initSpellingPractice() {
-    console.log('Spelling practice not implemented yet');
-    showNotification('该功能正在开发中', 'info');
+    // 练习设置
+    const settings = getPracticeSettings ? getPracticeSettings() : { level: 'basic', questionCount: 10 };
+    const wordLevel = settings.level || 'basic';
+    const questionCount = settings.questionCount || 10;
+    
+    // 获取题库
+    const wordPool = vocabularyManager.getWordsByLevel(wordLevel, 100, 0);
+    if (!wordPool || wordPool.length < 1) {
+        showNotification('词汇数据不足，无法生成题目', 'error');
+        return;
+    }
+    // 随机抽取题目
+    const questions = [];
+    const usedIndexes = new Set();
+    while (questions.length < questionCount && usedIndexes.size < wordPool.length) {
+        const idx = Math.floor(Math.random() * wordPool.length);
+        if (!usedIndexes.has(idx)) {
+            usedIndexes.add(idx);
+            const wordObj = wordPool[idx];
+            questions.push({
+                word: wordObj.word,
+                meaning: wordObj.meaning,
+                phonetic: wordObj.phonetic || '',
+                example: wordObj.example || '',
+                audio: wordObj.audio || '',
+            });
+        }
+    }
+    if (questions.length === 0) {
+        showNotification('题目生成失败', 'error');
+        return;
+    }
+    // 初始化状态
+    window.spellingPractice = {
+        questions,
+        current: 0,
+        correct: 0,
+        total: questions.length,
+        streak: 0,
+        score: 0,
+        userAnswers: [],
+        finished: false
+    };
+    // UI初始化
+    document.getElementById('practiceTitle').textContent = '✍️ 拼写练习';
+    document.getElementById('practiceArea').classList.add('active');
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'block';
+    document.getElementById('skipBtn').style.display = 'block';
+    showSpellingQuestion();
+    updateSpellingProgress();
+    // 绑定按钮
+    document.getElementById('nextBtn').onclick = submitSpellingAnswer;
+    document.getElementById('skipBtn').onclick = skipSpellingQuestion;
+}
+
+function showSpellingQuestion() {
+    const state = window.spellingPractice;
+    const q = state.questions[state.current];
+    const container = document.getElementById('questionContainer');
+    if (!q) {
+        container.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">题目加载失败</div>';
+        return;
+    }
+    // 题干：释义+音标+例句+发音按钮
+    let html = `<div class="question-text">请根据释义和发音拼写出正确的英文单词</div>`;
+    html += `<div class="hint-section"><div class="hint-text">释义：${q.meaning || '无'}<br>`;
+    if (q.phonetic) html += `音标：<b>[${q.phonetic}]</b><br>`;
+    if (q.example) html += `例句：${q.example}<br>`;
+    html += `</div></div>`;
+    html += `<div style="text-align:center;margin:1rem 0;">
+        <button class="btn btn-secondary" onclick="playSpellingAudio()">🔊 听发音</button>
+    </div>`;
+    html += `<div class="typing-area">
+        <input type="text" id="spellingInput" class="typing-input" placeholder="请输入英文单词" autocomplete="off" autofocus />
+    </div>`;
+    html += `<div id="spellingFeedback" style="text-align:center;margin-top:1rem;"></div>`;
+    container.innerHTML = html;
+    // 回车提交
+    const input = document.getElementById('spellingInput');
+    input.focus();
+    input.onkeydown = function(e) {
+        if (e.key === 'Enter') submitSpellingAnswer();
+    };
+    // 允许多次点击发音
+    window.playSpellingAudio = function() {
+        if ('speechSynthesis' in window) {
+            const utter = new SpeechSynthesisUtterance(q.word);
+            utter.lang = 'en-US';
+            utter.rate = 0.8;
+            speechSynthesis.speak(utter);
+        }
+    };
+}
+
+function submitSpellingAnswer() {
+    const state = window.spellingPractice;
+    if (state.finished) return;
+    const input = document.getElementById('spellingInput');
+    const feedback = document.getElementById('spellingFeedback');
+    if (!input) return;
+    const userAnswer = input.value.trim();
+    const correctWord = state.questions[state.current].word;
+    let isCorrect = false;
+    if (userAnswer.toLowerCase() === correctWord.toLowerCase()) {
+        isCorrect = true;
+        state.correct++;
+        state.streak++;
+        state.score += 10;
+        feedback.innerHTML = `<span style='color:#10b981;font-weight:bold;'>✔️ 正确！</span>`;
+    } else {
+        state.streak = 0;
+        feedback.innerHTML = `<span style='color:#ef4444;font-weight:bold;'>❌ 错误，正确答案：${correctWord}</span>`;
+    }
+    state.userAnswers.push({
+        word: correctWord,
+        user: userAnswer,
+        correct: isCorrect
+    });
+    input.disabled = true;
+    // 下一题按钮变为"下一题"或"完成"
+    const nextBtn = document.getElementById('nextBtn');
+    nextBtn.textContent = (state.current === state.total - 1) ? '完成' : '下一题';
+    nextBtn.onclick = nextSpellingQuestion;
+    updateSpellingProgress();
+}
+
+function nextSpellingQuestion() {
+    const state = window.spellingPractice;
+    if (state.current < state.total - 1) {
+        state.current++;
+        showSpellingQuestion();
+        updateSpellingProgress();
+        // 恢复按钮
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.textContent = '提交';
+        nextBtn.onclick = submitSpellingAnswer;
+    } else {
+        finishSpellingPractice();
+    }
+}
+
+function skipSpellingQuestion() {
+    const state = window.spellingPractice;
+    if (state.finished) return;
+    state.userAnswers.push({
+        word: state.questions[state.current].word,
+        user: '',
+        correct: false,
+        skipped: true
+    });
+    state.streak = 0;
+    // 直接进入下一题
+    if (state.current < state.total - 1) {
+        state.current++;
+        showSpellingQuestion();
+        updateSpellingProgress();
+        // 恢复按钮
+        const nextBtn = document.getElementById('nextBtn');
+        nextBtn.textContent = '提交';
+        nextBtn.onclick = submitSpellingAnswer;
+    } else {
+        finishSpellingPractice();
+    }
+}
+
+function updateSpellingProgress() {
+    const state = window.spellingPractice;
+    document.getElementById('currentScore').textContent = state.score;
+    document.getElementById('currentStreak').textContent = state.streak;
+    document.getElementById('progressText').textContent = `第 ${state.current + 1} / ${state.total} 题`;
+    const percent = Math.round(((state.current + 1) / state.total) * 100);
+    document.getElementById('progressFill').style.width = percent + '%';
+}
+
+function finishSpellingPractice() {
+    const state = window.spellingPractice;
+    state.finished = true;
+    // 展示结果
+    const correct = state.correct;
+    const total = state.total;
+    const accuracy = total > 0 ? Math.round((correct / total) * 100) : 0;
+    // 保存结果
+    savePracticeResult('spelling-practice', correct, total, state.score);
+    // 显示模态框
+    const modal = document.getElementById('resultModal');
+    const icon = document.getElementById('resultIcon');
+    const title = document.getElementById('resultTitle');
+    const stats = document.getElementById('resultStats');
+    if (modal) {
+        icon.textContent = accuracy >= 80 ? '🎉' : (accuracy >= 60 ? '👍' : '💪');
+        title.textContent = `拼写练习完成！`;
+        stats.innerHTML = `
+            <div>总题数：${total}</div>
+            <div>答对：${correct}</div>
+            <div>正确率：${accuracy}%</div>
+        `;
+        modal.style.display = 'flex';
+    }
+    // 关闭按钮
+    document.getElementById('resultCloseBtn').onclick = function() {
+        modal.style.display = 'none';
+        exitPractice();
+    };
+    document.getElementById('resultRetryBtn').onclick = function() {
+        modal.style.display = 'none';
+        initSpellingPractice();
+    };
 }
 
 function initListeningPractice() {
@@ -809,16 +1015,131 @@ function initRapidFire() {
 }
 
 function initReviewMode() {
-    console.log('Review mode not implemented yet');
-    showNotification('该功能正在开发中', 'info');
+    // 获取复习词汇
+    const reviewWords = JSON.parse(localStorage.getItem('reviewWords')) || [];
+    if (!reviewWords.length) {
+        showNotification('没有需要复习的词汇，请先在词汇页面添加重点词', 'info');
+        return;
+    }
+    // 生成题目（可扩展为 quiz/spelling 等多模式，这里先做闪卡模式）
+    const questions = reviewWords.map(word => {
+        const wordData = vocabularyManager.getLocalWordData(word) || { word };
+        return {
+            word: wordData.word,
+            meaning: wordData.meaning || '',
+            phonetic: wordData.phonetic || '',
+            example: wordData.example || ''
+        };
+    });
+    window.reviewPractice = {
+        questions,
+        current: 0,
+        total: questions.length,
+        known: 0,
+        unsure: 0,
+        unknown: 0,
+        userAnswers: [],
+        finished: false
+    };
+    document.getElementById('practiceTitle').textContent = '📚 复习模式';
+    document.getElementById('practiceArea').classList.add('active');
+    document.getElementById('startBtn').style.display = 'none';
+    document.getElementById('nextBtn').style.display = 'block';
+    document.getElementById('skipBtn').style.display = 'block';
+    showReviewQuestion();
+    // 绑定按钮
+    document.getElementById('nextBtn').onclick = () => markReviewAnswer('known');
+    document.getElementById('skipBtn').onclick = () => markReviewAnswer('unknown');
+}
+
+function showReviewQuestion() {
+    const state = window.reviewPractice;
+    const q = state.questions[state.current];
+    const container = document.getElementById('questionContainer');
+    if (!q) {
+        container.innerHTML = '<div style="text-align:center;color:#ef4444;padding:2rem;">题目加载失败</div>';
+        return;
+    }
+    let html = `<div class="question-text">请回忆下列单词的含义和用法</div>`;
+    html += `<div class="question-word">${q.word}</div>`;
+    if (q.phonetic) html += `<div class="question-phonetic">[${q.phonetic}]</div>`;
+    html += `<div class="review-actions" style="margin:2rem 0;display:flex;gap:1rem;justify-content:center;">
+        <button class="btn btn-success" onclick="markReviewAnswer('known')">已掌握</button>
+        <button class="btn btn-warning" onclick="markReviewAnswer('unsure')">不确定</button>
+        <button class="btn btn-danger" onclick="markReviewAnswer('unknown')">不认识</button>
+        <button class="btn btn-secondary" onclick="playReviewAudio()">🔊 听发音</button>
+        <button class="btn btn-info" onclick="showReviewAnswer()">显示释义</button>
+    </div>`;
+    html += `<div id="reviewAnswer" style="text-align:center;margin-top:1rem;display:none;"></div>`;
+    container.innerHTML = html;
+    window.playReviewAudio = function() {
+        if ('speechSynthesis' in window) {
+            const utter = new SpeechSynthesisUtterance(q.word);
+            utter.lang = 'en-US';
+            utter.rate = 0.8;
+            speechSynthesis.speak(utter);
+        }
+    };
+    window.showReviewAnswer = function() {
+        const ans = document.getElementById('reviewAnswer');
+        ans.style.display = 'block';
+        ans.innerHTML = `<div class='hint-section'><div class='hint-text'>释义：${q.meaning || '无'}<br>${q.example ? '例句：' + q.example : ''}</div></div>`;
+    };
+}
+
+function markReviewAnswer(type) {
+    const state = window.reviewPractice;
+    const q = state.questions[state.current];
+    state.userAnswers.push({ word: q.word, result: type });
+    if (type === 'known') state.known++;
+    if (type === 'unsure') state.unsure++;
+    if (type === 'unknown') state.unknown++;
+    if (state.current < state.total - 1) {
+        state.current++;
+        showReviewQuestion();
+    } else {
+        finishReviewPractice();
+    }
+}
+
+function finishReviewPractice() {
+    const state = window.reviewPractice;
+    state.finished = true;
+    // 展示结果
+    const { known, unsure, unknown, total } = state;
+    const accuracy = total > 0 ? Math.round((known / total) * 100) : 0;
+    // 保存结果
+    savePracticeResult('review-mode', known, total, known * 10);
+    // 显示模态框
+    const modal = document.getElementById('resultModal');
+    const icon = document.getElementById('resultIcon');
+    const title = document.getElementById('resultTitle');
+    const stats = document.getElementById('resultStats');
+    if (modal) {
+        icon.textContent = accuracy >= 80 ? '🎉' : (accuracy >= 60 ? '👍' : '💪');
+        title.textContent = `复习完成！`;
+        stats.innerHTML = `
+            <div>总词数：${total}</div>
+            <div>已掌握：${known}</div>
+            <div>不确定：${unsure}</div>
+            <div>不认识：${unknown}</div>
+            <div>掌握率：${accuracy}%</div>
+        `;
+        modal.style.display = 'flex';
+    }
+    // 关闭按钮
+    document.getElementById('resultCloseBtn').onclick = function() {
+        modal.style.display = 'none';
+        exitPractice();
+    };
+    document.getElementById('resultRetryBtn').onclick = function() {
+        modal.style.display = 'none';
+        initReviewMode();
+    };
 }
 
 function showMeaningChoiceQuestion() {
     console.log('Meaning choice question not implemented yet');
-}
-
-function showSpellingQuestion() {
-    console.log('Spelling question not implemented yet');
 }
 
 function showListeningQuestion() {
@@ -827,8 +1148,4 @@ function showListeningQuestion() {
 
 function showRapidFireQuestion() {
     console.log('Rapid fire question not implemented yet');
-}
-
-function showReviewQuestion() {
-    console.log('Review question not implemented yet');
 }

@@ -52,9 +52,9 @@ function initializeSearchPage() {
 }
 
 /**
- * 执行搜索
+ * 执行搜索（异步，支持API）
  */
-function performSearch() {
+async function performSearch() {
     const searchInput = document.getElementById('searchInput');
     const categoryFilter = document.getElementById('categoryFilter');
     const levelFilter = document.getElementById('levelFilter');
@@ -70,27 +70,22 @@ function performSearch() {
     const selectedLevel = levelFilter ? levelFilter.value : '';
     
     let results = [];
-    
     if (query) {
-        // 基于查询搜索
-        results = vocabularyManager.searchWords(query, 50);
+        // 基于查询搜索（异步）
+        results = await vocabularyManager.searchWords(query, 50);
     } else {
         // 显示默认结果
         results = vocabularyManager.getWordsByLevel('basic', 20, 0);
     }
-    
     // 应用过滤器
     if (selectedCategory) {
         results = results.filter(word => word.category === selectedCategory);
     }
-    
     if (selectedLevel) {
         results = results.filter(word => word.level === selectedLevel);
     }
-    
     // 显示结果
     displaySearchResults(results, query);
-    
     // 更新结果计数
     updateResultsCount(results.length);
 }
