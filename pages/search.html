@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>词汇搜索 - Stone English</title>
+    
+    <!-- Favicon 图标配置 -->
+    <link rel="apple-touch-icon" sizes="180x180" href="../favicon_io/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="../favicon_io/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="../favicon_io/favicon-16x16.png">
+    <link rel="manifest" href="../favicon_io/site.webmanifest">
+    <link rel="shortcut icon" href="../favicon_io/favicon.ico">
+    
+    <link rel="stylesheet" href="../styles/main.css">
+    <link rel="stylesheet" href="../styles/components.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-logo">
+                <span class="logo-emoji">📚</span>
+                <span>Stone English</span>
+            </div>
+            <ul class="nav-menu">
+                <li><a href="../index.html" class="nav-link">🏠 首页</a></li>
+                <li><a href="vocabulary.html" class="nav-link">📚 词汇</a></li>
+                <li><a href="grammar.html" class="nav-link">📝 语法</a></li>
+                <li><a href="practice.html" class="nav-link">🎯 练习</a></li>
+            </ul>
+            <div class="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container">
+        <div class="search-section">
+            <h1 class="page-title">📝 词汇搜索</h1>
+            
+            <div class="search-box">
+                <input type="text" id="searchInput" placeholder="输入要搜索的单词..." class="search-input">
+                <button id="searchBtn" class="btn btn-primary">搜索</button>
+            </div>
+
+            <div class="search-filters">
+                <select id="levelFilter" class="filter-select">
+                    <option value="">所有级别</option>
+                    <option value="basic">基础</option>
+                    <option value="intermediate">中级</option>
+                    <option value="advanced">高级</option>
+                </select>
+                
+                <select id="categoryFilter" class="filter-select">
+                    <option value="">所有类别</option>
+                    <option value="common">常用词汇</option>
+                    <option value="academic">学术词汇</option>
+                    <option value="business">商务词汇</option>
+                </select>
+            </div>
+        </div>
+
+        <div id="searchResults" class="search-results">
+            <!-- 搜索结果将在这里显示 -->
+        </div>
+    </main>
+
+    <script src="../scripts/word-generator.js"></script>
+    <script src="../scripts/vocabulary-manager.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('searchInput');
+            const searchBtn = document.getElementById('searchBtn');
+            const levelFilter = document.getElementById('levelFilter');
+            const categoryFilter = document.getElementById('categoryFilter');
+            const resultsContainer = document.getElementById('searchResults');
+
+            // 搜索功能
+            function performSearch() {
+                const searchTerm = searchInput.value.trim().toLowerCase();
+                const level = levelFilter.value;
+                const category = categoryFilter.value;
+
+                if (!searchTerm) {
+                    resultsContainer.innerHTML = '<p class="no-results">请输入搜索关键词</p>';
+                    return;
+                }
+
+                // 使用 vocabularyManager 搜索词汇
+                const results = window.vocabularyManager.searchWords(searchTerm, level, category);
+                displayResults(results);
+            }
+
+            // 显示搜索结果
+            function displayResults(results) {
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = '<p class="no-results">未找到匹配的词汇</p>';
+                    return;
+                }
+
+                const html = results.map(word => `
+                    <div class="word-card">
+                        <div class="word-header">
+                            <h3 class="word-title">${word.word}</h3>
+                            <button class="pronunciation-btn" onclick="pronounceWord('${word.word}')">🔊</button>
+                        </div>
+                        <div class="word-phonetic">${word.phonetic || ''}</div>
+                        <div class="word-meaning">${word.meaning || ''}</div>
+                        <div class="word-example">${word.example || ''}</div>
+                        <div class="word-actions">
+                            <button class="btn btn-primary" onclick="addToReview('${word.word}')">
+                                添加到复习
+                            </button>
+                        </div>
+                    </div>
+                `).join('');
+
+                resultsContainer.innerHTML = html;
+            }
+
+            // 添加到复习列表
+            window.addToReview = function(word) {
+                try {
+                    let reviewWords = JSON.parse(localStorage.getItem('reviewWords')) || [];
+                    
+                    if (reviewWords.includes(word)) {
+                        showNotification('该词汇已在复习列表中', 'info');
+                        return;
+                    }
+                    
+                    reviewWords.push(word);
+                    localStorage.setItem('reviewWords', JSON.stringify(reviewWords));
+                    
+                    showNotification('已添加到复习列表', 'success');
+                    
+                } catch (error) {
+                    console.error('Error adding word to review:', error);
+                    showNotification('添加失败，请重试', 'error');
+                }
+            };
+
+            // 发音功能
+            window.pronounceWord = function(word) {
+                if ('speechSynthesis' in window) {
+                    const utterance = new SpeechSynthesisUtterance(word);
+                    utterance.lang = 'en-US';
+                    speechSynthesis.speak(utterance);
+                }
+            };
+
+            // 事件监听
+            searchBtn.addEventListener('click', performSearch);
+            searchInput.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    performSearch();
+                }
+            });
+            levelFilter.addEventListener('change', performSearch);
+            categoryFilter.addEventListener('change', performSearch);
+        });
+
+        // 通知功能
+        function showNotification(message, type = 'info') {
+            // 实现通知显示逻辑
+            alert(message);
+        }
+    </script>
+</body>
+</html>
