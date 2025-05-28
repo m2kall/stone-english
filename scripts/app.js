@@ -399,30 +399,31 @@ function initQuickPractice() {
 }
 
 /**
- * 生成练习题
+ * 生成练习题（全量随机，避免重复）
  */
 function generateQuestion() {
     const questionContainer = document.getElementById('questionContainer');
     if (!questionContainer) return;
-    
     // 清除结果显示
     const resultElement = document.querySelector('.practice-result');
     if (resultElement) {
         resultElement.textContent = '';
         resultElement.className = 'practice-result';
     }
-    
-    // 获取随机单词
-    const randomWords = vocabularyManager.getWordsByLevel('basic', 5, 0);
-    
-    if (randomWords.length === 0) {
+    // 获取全量词库
+    const allWords = [
+        ...vocabularyManager.wordLists.basic,
+        ...vocabularyManager.wordLists.intermediate,
+        ...vocabularyManager.wordLists.advanced,
+        ...vocabularyManager.wordLists.toefl,
+        ...vocabularyManager.wordLists.ielts
+    ];
+    if (allWords.length === 0) {
         questionContainer.innerHTML = '<p>无法加载练习题</p>';
         return;
     }
-    
-    // 选择一个作为问题
-    const questionWord = randomWords[0];
-    
+    // 随机选择一个单词作为问题
+    const questionWord = allWords[Math.floor(Math.random() * allWords.length)];
     // 随机选择题型
     const questionTypes = ['meaning', 'word'];
     const questionType = questionTypes[Math.floor(Math.random() * questionTypes.length)];
@@ -451,10 +452,10 @@ function generateQuestion() {
         
         // 错误选项
         const wrongOptions = [];
-        for (let i = 1; i < randomWords.length; i++) {
+        for (let i = 1; i < allWords.length; i++) {
             const option = document.createElement('button');
             option.className = 'option-btn';
-            option.textContent = randomWords[i].meaning;
+            option.textContent = allWords[i].meaning;
             option.dataset.correct = 'false';
             option.addEventListener('click', checkAnswer);
             wrongOptions.push(option);
@@ -491,10 +492,10 @@ function generateQuestion() {
         
         // 错误选项
         const wrongOptions = [];
-        for (let i = 1; i < randomWords.length; i++) {
+        for (let i = 1; i < allWords.length; i++) {
             const option = document.createElement('button');
             option.className = 'option-btn';
-            option.textContent = randomWords[i].word;
+            option.textContent = allWords[i].word;
             option.dataset.correct = 'false';
             option.addEventListener('click', checkAnswer);
             wrongOptions.push(option);
